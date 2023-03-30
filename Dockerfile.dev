@@ -1,0 +1,24 @@
+# VS Code Python Development Container
+FROM python:3.11-slim-buster
+
+# Set the working directory
+WORKDIR /workspaces/star_pass
+
+# Update OS package list and install git
+RUN apt-get update && \
+    apt-get upgrade -y && \
+    apt-get install -y git
+
+# Copy the Python pip requirements file
+COPY requirements/requirements_dev.txt requirements/requirements_dev.txt
+
+# Upgrade pip and install requirements from the requirements file
+RUN python -m pip install --upgrade pip && \
+    python -m pip install -r requirements/requirements_dev.txt && \
+    rm -rf requirements
+
+# Set the PYTHONPATH environment variable
+ENV PYTHONPATH=/workspaces/star_pass
+
+# Start the bash prompt
+CMD ["/bin/bash"]
