@@ -20,5 +20,8 @@ RUN python -m pip install --upgrade pip && \
 # Set the PYTHONPATH environment variable
 ENV PYTHONPATH=/workspaces/star_pass
 
+# Add other environment variables
+ENV BASE_URL=https://api.galaxydigital.com/api
+
 # Start the bash prompt
 CMD ["/bin/bash"]
