@@ -19,5 +19,8 @@ bandit
 pytest
 pytest-cov
 
+# HTTP requests
+requests
+
 # YAML formatting
 yamllint

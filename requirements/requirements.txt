@@ -3,3 +3,6 @@ pyyaml
 
 # .env file support
 python_dotenv
+
+# HTTP requests
+requests
