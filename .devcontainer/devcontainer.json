@@ -12,7 +12,9 @@
             // Visual Studio Code extensions
             "extensions": [
                 "davidanson.vscode-markdownlint",
+                "github.vscode-github-actions",
                 "github.vscode-pull-request-github",
+                "ms-python.flake8",
                 "ms-python.pylint",
                 "ms-python.python",
                 "ms-python.vscode-pylance",
@@ -38,8 +40,6 @@
                 // Set Python configuration for runtime, syntax analysis, and linting
                 "python.analysis.useImportHeuristic": true,
                 "python.formatting.provider": "autopep8",
-                "python.linting.enabled": true,
-                "python.linting.flake8Enabled": true,
                 "python.pythonPath": "/usr/local/bin/python3"
             }
         }
