@@ -2,13 +2,35 @@
 """ Test deleting users in bulk. """
 
 # Imports - Python Standard Library
-from os import path
+from os import getenv, path
 from typing import List
 
-# Constants
-SOURCE_DATA_DIR = '../_gitignore/_deactivate_list_files'
-SOURCE_DATA_FILE = 'deactivate_list_test.txt'
-SOURCE_DATA_PATH = path.join(SOURCE_DATA_DIR, SOURCE_DATA_FILE)
+# Imports - Third-Party
+from dotenv import load_dotenv
+import requests
+
+# Load environment variables
+load_dotenv()
+
+# Constants - GetConnected
+GC_TOKEN = getenv(key='GC_TOKEN')
+DEFAULT_HEADERS = {
+    'Authorization': f'Bearer {GC_TOKEN}',
+    'Accept': 'application/json'
+}
+BASE_URL = getenv(key='BASE_URL')
+ENDPOINT = '/users'
+PARAMS = '?user_email='
+
+# Constants - input files
+INPUT_DATA_DIR = '../_gitignore/_deactivate_list_files'
+INPUT_DATA_FILE = 'deactivate_list_test.txt'
+INPUT_DATA_PATH = path.join(INPUT_DATA_DIR, INPUT_DATA_FILE)
+
+# Constants - output files
+OUTPUT_DATA_DIR = INPUT_DATA_DIR
+OUTPUT_DATA_FILE = 'user_ids.txt'
+OUTPUT_DATA_PATH = path.join(OUTPUT_DATA_DIR, OUTPUT_DATA_FILE)
 
 
 class UserOperations:
@@ -33,7 +55,7 @@ class UserOperations:
 
         # Open the data file
         with open(
-            file=SOURCE_DATA_PATH,
+            file=INPUT_DATA_PATH,
             mode='r',
             encoding='utf=8'
         ) as user_emails:
@@ -53,5 +75,89 @@ class UserOperations:
 
             Returns:
                 user_ids (List[str]):
-                    List of email addresses.
+                    List of user IDs.
         """
+
+        # Create a list object to contain user IDs
+        user_ids = []
+
+        # Loop over the list of user emails to get user IDs
+        for user_email in self.user_emails:
+            # Construct URL
+            url = f'{BASE_URL}{ENDPOINT}{PARAMS}{user_email}'
+
+            # Send API request
+            response_data = requests.get(
+                url=url,
+                headers=DEFAULT_HEADERS,
+                timeout=3
+            )
+
+            # Get the user ID
+            user_id = response_data.json()['data'][0].get('id')
+
+            # Add the user ID to the user ID list
+            user_ids.append(user_id)
+
+        return user_ids
+
+    def deactivate_user_ids(
+        self,
+        user_ids: List[str]
+    ) -> None:
+        """ Deactivate users with a list of user IDs.
+
+            Args:
+                user_ids (List[str]):
+                    List of user IDs.
+
+            Returns:
+                None
+        """
+
+        # Loop over the list of user IDs
+        for user_id in user_ids:
+            # Construct URL
+            url = f'{BASE_URL}{ENDPOINT}{user_id}'
+            # Send API request
+            response_data = requests.delete(
+                url=url,
+                headers=DEFAULT_HEADERS,
+                timeout=3
+            )
+
+            if response_data.ok:
+                # Display the request status
+                print(f'Deleted user ID {user_id}')
+
+        return None
+
+    def write_user_ids(
+        self,
+        user_ids: List[str]
+    ) -> None:
+        """ Write user IDs to a file.
+
+            Args:
+                user_ids (List[str]):
+                    List of user IDs.
+
+            Returns:
+                None
+        """
+
+        # Add line breaks to the list of user IDs
+        user_id_list = [
+            f'{user_id}\n' for user_id in user_ids
+        ]
+
+        # Write the User ID list to a file
+        with open(
+            file=OUTPUT_DATA_PATH,
+            mode='w',
+            encoding='utf-8'
+        ) as user_id_output:
+            # Write file data adding line breaks with a list comprehension
+            user_id_output.writelines(user_id_list)
+
+        return None
