@@ -12,7 +12,9 @@
             // Visual Studio Code extensions
             "extensions": [
                 "davidanson.vscode-markdownlint",
+                "github.vscode-github-actions",
                 "github.vscode-pull-request-github",
+                "ms-python.flake8",
                 "ms-python.pylint",
                 "ms-python.python",
                 "ms-python.vscode-pylance",
