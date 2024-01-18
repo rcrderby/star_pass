@@ -24,7 +24,7 @@ PARAMS = '?user_email='
 
 # Constants - input files
 INPUT_DATA_DIR = '../_gitignore/_deactivate_list_files'
-INPUT_DATA_FILE = 'deactivate_list_test.txt'
+INPUT_DATA_FILE = 'full_deactivate_list.txt'
 INPUT_DATA_PATH = path.join(INPUT_DATA_DIR, INPUT_DATA_FILE)
 
 # Constants - output files
@@ -82,7 +82,10 @@ class UserOperations:
         user_ids = []
 
         # Loop over the list of user emails to get user IDs
-        for user_email in self.user_emails:
+        for index, user_email in enumerate(
+            self.user_emails,
+            start=1
+        ):
             # Construct URL
             url = f'{BASE_URL}{ENDPOINT}{PARAMS}{user_email}'
 
@@ -93,11 +96,29 @@ class UserOperations:
                 timeout=3
             )
 
-            # Get the user ID
-            user_id = response_data.json()['data'][0].get('id')
+            # Output the iteration index with no new line break
+            print(
+                f'{index}. ',
+                end=''
+            )
 
-            # Add the user ID to the user ID list
-            user_ids.append(user_id)
+            # Skip to the next user if the status code is 404
+            if response_data.status_code == 404:
+                print(f'User {user_email.strip()} not found.')
+                continue
+
+            # Get the user ID
+            try:
+                user_id = response_data.json()['data'][0].get('id')
+                print(f'Found ID {user_id} for user {user_email.strip()}.')
+
+                # Add the user ID to the user ID list
+                user_ids.append(user_id)
+
+            except KeyError as e:
+                print(f'Error fetching user data for {user_email}.')
+                print(f'{e!r}\n')
+                continue
 
         return user_ids
 
@@ -118,7 +139,7 @@ class UserOperations:
         # Loop over the list of user IDs
         for user_id in user_ids:
             # Construct URL
-            url = f'{BASE_URL}{ENDPOINT}{user_id}'
+            url = f'{BASE_URL}{ENDPOINT}/{user_id}'
             # Send API request
             response_data = requests.delete(
                 url=url,
@@ -128,7 +149,7 @@ class UserOperations:
 
             if response_data.ok:
                 # Display the request status
-                print(f'Deleted user ID {user_id}')
+                print(f'Deactivated user ID {user_id}.')
 
         return None
 
