@@ -1,0 +1,12 @@
+{# Loop over shift data #}
+{% for shift in shifts_data %}
+    {# Loop over shift data #}
+    {
+        "slots": {{ shifts.shift_number_of_slots }},
+        "start": {{ shifts.shift_start_date }} {{ shifts.shift_start_time }},
+        "duration": {{ shifts.shift_duration_mins }}
+    }
+{% if true %}
+    {# Placeholder to add a trailing comma it array when required #}
+{% endif %}
+{% endfor %}
