@@ -37,7 +37,7 @@ class AmplifyShifts():
         """
         pass
 
-    def _create_api_request() -> None:
+    def _send_api_request(self) -> None:
         """ Create base API request.
 
             Args:
@@ -46,7 +46,22 @@ class AmplifyShifts():
             Returns:
                 None.
         """
-        pass
+
+        # Construct URL
+        # url = f'{BASE_URL}{endpoint}'
+
+        # Send API request
+        response_data = request(
+            # Type
+            # url=url,
+            headers=DEFAULT_HEADERS,
+            timeout=3
+        )
+
+        # Create response data object
+        response = response_data.json()['data']
+
+        return response
 
     def load_shifts_file_data(self) -> None:
         """ Load shifts data from a file.
