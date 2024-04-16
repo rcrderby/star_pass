@@ -15,6 +15,9 @@ ipython
 # Static code analysis
 bandit
 
+# Pandas data structures
+pandas
+
 # Python testing
 pytest
 pytest-cov
