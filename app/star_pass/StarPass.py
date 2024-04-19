@@ -87,16 +87,101 @@ class AmplifyShifts():
 
         return response
 
-    def load_shifts_file_data(self) -> None:
-        """ Load shifts data from a file.
+    def read_shift_csv_data(
+            self,
+            input_file: str = INPUT_FILE
+        ) -> frame.DataFrame:
+        """ Read shifts data from a CSV file and convert fields to
+            strings for Amplify API compatibility.
 
             Args:
-                None.
+                input_file (str):
+                    CSV file or path to CSV file.
 
             Returns:
-                None.
+                shift_data (frame.DataFrame):
+                    Pandas data frame of raw shift data.
         """
-        pass
+
+        shift_data = pd.read_csv(
+            filepath_or_buffer=input_file,
+            dtype='string'
+        )
+
+        return shift_data
+
+    def remove_duplicate_shifts(
+            self,
+            shift_data: frame.DataFrame
+        ) -> frame.DataFrame:
+        """ Remove duplicate shift entries.
+
+            Args:
+                shift_data (frame.DataFrame):
+                    Pandas data frame of raw shift data.
+
+            Returns:
+                shift_data (frame.DataFrame):
+                    Pandas data frame of shift data with duplicates
+                    removed.
+        """
+
+        shift_data.drop_duplicates(
+            inplace=True,
+            keep='first'
+        )
+
+        return shift_data
+
+    def format_shift_start(
+            self,
+            shift_data: frame.DataFrame
+        ) -> frame.DataFrame:
+        """ Merge the 'start_date' and 'start_time' columns to a
+            'start_date' column.
+
+            Args:
+                shift_data (frame.DataFrame):
+                    Pandas data frame of raw shift data.
+
+            Returns:
+                shift_data (frame.DataFrame):
+                    Pandas data frame of shift data new 'start' column.
+        """
+
+        shift_data[START_COLUMN] = shift_data[
+            [
+                START_DATE_COLUMN,
+                START_TIME_COLUMN
+            ]
+        ].agg(
+            ' '.join,
+            axis=1
+        )
+
+        return shift_data
+
+    def drop_unused_columns(
+            self,
+            shift_data: frame.DataFrame
+        ) -> frame.DataFrame:
+        """ Drop unused columns from the data frame.
+
+            Args:
+                shift_data (frame.DataFrame):
+                    Pandas data frame of raw shift data.
+
+            Returns:
+                shift_data (frame.DataFrame):
+                    Pandas data frame of shift data without extra columns.
+        """
+
+        shift_data.drop(
+            columns=DROP_COLUMNS,
+            inplace=True
+        )
+
+        return shift_data
 
     def create_shift_json_data(self) -> None:
         """ Create shift JSON data for the HTTP body.
