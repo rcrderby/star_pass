@@ -90,7 +90,7 @@ class AmplifyShifts():
 
         return response
 
-    def read_shift_csv_data(
+    def _read_shift_csv_data(
             self,
             input_file: str = INPUT_FILE
         ) -> frame.DataFrame:
@@ -116,7 +116,7 @@ class AmplifyShifts():
 
         return None
 
-    def remove_duplicate_shifts(
+    def _remove_duplicate_shifts(
             self,
             shift_data: frame.DataFrame
         ) -> frame.DataFrame:
@@ -139,7 +139,7 @@ class AmplifyShifts():
 
         return None
 
-    def format_shift_start(
+    def _format_shift_start(
             self,
             shift_data: frame.DataFrame
         ) -> frame.DataFrame:
@@ -169,7 +169,7 @@ class AmplifyShifts():
 
         return None
 
-    def drop_unused_columns(
+    def _drop_unused_columns(
             self,
             shift_data: frame.DataFrame
         ) -> frame.DataFrame:
@@ -192,7 +192,7 @@ class AmplifyShifts():
 
         return None
 
-    def group_shift_data(
+    def _group_shift_data(
             self,
             shift_data: frame.DataFrame
     ) -> DataFrameGroupBy:
@@ -215,7 +215,7 @@ class AmplifyShifts():
 
         return None
 
-    def create_grouped_series(
+    def _create_grouped_series(
             self,
             grouped_shift_data: DataFrameGroupBy
     ) -> series.Series:
@@ -244,7 +244,7 @@ class AmplifyShifts():
 
         return None
 
-    def create_shift_json_data(
+    def _create_shift_json_data(
             self,
             grouped_series: series.Series
         ) -> None:
