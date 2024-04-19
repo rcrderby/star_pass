@@ -20,11 +20,30 @@ load_dotenv(
 
 # Constants
 GC_TOKEN = getenv(key='GC_TOKEN')
-DEFAULT_HEADERS = {
+BASE_HEADERS = {
     'Authorization': f'Bearer {GC_TOKEN}',
     'Accept': 'application/json'
 }
+BASE_FILE_PATH = path.join(
+    getenv('BASE_FILE_RELATIVE_PATH'),
+    getenv('BASE_FILE_NAME')
+)
 BASE_URL = getenv(key='BASE_URL')
+GROUP_BY_COLUMN = getenv('GROUP_BY_COLUMN')
+INPUT_FILE_EXTENSION = getenv('INPUT_FILE_EXTENSION')
+INPUT_FILE = f'{BASE_FILE_PATH}{INPUT_FILE_EXTENSION}'
+DROP_COLUMNS = getenv('DROP_COLUMNS').split(
+    sep=', '
+)
+KEEP_COLUMNS = getenv('KEEP_COLUMNS').split(
+    sep=', '
+)
+OUTPUT_FILE_EXTENSION = getenv('OUTPUT_FILE_EXTENSION')
+OUTPUT_FILE = f'{BASE_FILE_PATH}{OUTPUT_FILE_EXTENSION}'
+SHIFTS_DICT_KEY_NAME = getenv('SHIFTS_DICT_KEY_NAME')
+START_COLUMN = getenv('START_COLUMN')
+START_DATE_COLUMN = getenv('START_DATE_COLUMN')
+START_TIME_COLUMN = getenv('START_TIME_COLUMN')
 
 
 # Class definitions
@@ -59,7 +78,7 @@ class AmplifyShifts():
         response_data = request(
             # Type
             # url=url,
-            headers=DEFAULT_HEADERS,
+            headers=BASE_HEADERS,
             timeout=3
         )
 
