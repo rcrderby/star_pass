@@ -100,9 +100,8 @@ class AmplifyShifts():
 
             Returns:
                 shift_data (frame.DataFrame):
-                    Pandas data frame of raw shift data.
+                    Pandas Data Frame of raw shift data.
         """
-
         shift_data = pd.read_csv(
             filepath_or_buffer=input_file,
             dtype='string'
@@ -118,14 +117,13 @@ class AmplifyShifts():
 
             Args:
                 shift_data (frame.DataFrame):
-                    Pandas data frame of raw shift data.
+                    Pandas Data Frame of raw shift data.
 
             Returns:
                 shift_data (frame.DataFrame):
-                    Pandas data frame of shift data with duplicates
+                    Pandas Data Frame of shift data with duplicates
                     removed.
         """
-
         shift_data.drop_duplicates(
             inplace=True,
             keep='first'
@@ -142,13 +140,13 @@ class AmplifyShifts():
 
             Args:
                 shift_data (frame.DataFrame):
-                    Pandas data frame of raw shift data.
+                    Pandas Data Frame of shift data with duplicates
+                    removed.
 
             Returns:
                 shift_data (frame.DataFrame):
-                    Pandas data frame of shift data new 'start' column.
+                    Pandas Data Frame with shift data in a new 'start' column.
         """
-
         shift_data[START_COLUMN] = shift_data[
             [
                 START_DATE_COLUMN,
@@ -169,13 +167,12 @@ class AmplifyShifts():
 
             Args:
                 shift_data (frame.DataFrame):
-                    Pandas data frame of raw shift data.
+                    Pandas Data Frame with shift data in a new 'start' column.
 
             Returns:
                 shift_data (frame.DataFrame):
-                    Pandas data frame of shift data without extra columns.
+                    Pandas Data Frame of shift data without extra columns.
         """
-
         shift_data.drop(
             columns=DROP_COLUMNS,
             inplace=True
@@ -183,7 +180,59 @@ class AmplifyShifts():
 
         return shift_data
 
-    def create_shift_json_data(self) -> None:
+    def group_shift_data(
+            self,
+            shift_data: frame.DataFrame
+    ) -> DataFrameGroupBy:
+        """ Group rows by 'need_id' and keep only relevant columns.
+
+            Args:
+                shift_data (frame.DataFrame):
+                    Pandas Data Frame of shift data without extra columns.
+
+            Returns:
+                grouped_shift_data (DataFrameGroupBy):
+                    Pandas Grouped Data Frame of shift data, grouped by each
+                    shift's 'need_id'.
+        """
+        grouped_shift_data = shift_data.groupby(
+            by=[GROUP_BY_COLUMN]
+        )[KEEP_COLUMNS]
+
+        return grouped_shift_data
+
+    def create_grouped_series(
+            self,
+            grouped_shift_data: DataFrameGroupBy
+    ) -> series.Series:
+        """ Insert a 'shifts' dict under each 'need_id' dict to comply with the
+            required API POST body request format.  Automatically converts the
+            grouped data frame to a Pandas Series
+
+            Args:
+                grouped_shift_data (DataFrameGroupBy):
+                    Pandas Grouped Data Frame of shift data, grouped by each
+                    shift's 'need_id'.
+
+            Returns:
+                grouped_series (series.Series):
+                    Pandas Series of shifts grouped by 'need_id' with all shifts
+                    contained in a 'shifts' dict key.
+        """
+        grouped_series = grouped_shift_data.apply(
+            func=lambda x: {
+                SHIFTS_DICT_KEY_NAME: x.to_dict(
+                    orient='records'
+                )
+            }
+        )
+
+        return grouped_series
+
+    def create_shift_json_data(
+            self,
+            grouped_series: series.Series
+        ) -> None:
         """ Create shift JSON data for the HTTP body.
 
             Args:
@@ -192,7 +241,14 @@ class AmplifyShifts():
             Returns:
                 None.
         """
-        pass
+        grouped_series.to_json(
+            indent=2,
+            mode='w',
+            orient='index',
+            path_or_buf=OUTPUT_FILE
+        )
+
+        return None
 
     def create_new_shifts_(self) -> None:
         """ Upload shift data to create new shifts.
