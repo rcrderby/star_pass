@@ -61,8 +61,8 @@ class AmplifyShifts():
         """
         # Placeholder variables for data transformation methods
         self._shift_data: frame.DataFrame = None
-        self._grouped_shift_data = None
-        self._grouped_series = None
+        self._grouped_shift_data: DataFrameGroupBy = None
+        self._grouped_series: series.Series = None
 
     def _send_api_request(self) -> None:
         """ Create base API request.
@@ -91,9 +91,9 @@ class AmplifyShifts():
         return response
 
     def _read_shift_csv_data(
-            self,
-            input_file: str = INPUT_FILE
-        ) -> None:
+        self,
+        input_file: str = INPUT_FILE
+    ) -> None:
         """ Read shifts data from a CSV file and convert fields to
             strings for Amplify API compatibility.
 
@@ -212,9 +212,8 @@ class AmplifyShifts():
         """
         # Group shifts by 'need_id' and remove other columns from the POST body
         self._grouped_shift_data = self._shift_data.groupby(
-            by=[GROUP_BY_COLUMN]
-        # Excludes the 'need_id' from what will be the API request POST body
-        )[KEEP_COLUMNS]
+            # [KEEP_COLUMNS] excludes the 'need_id' column
+            by=[GROUP_BY_COLUMN])[KEEP_COLUMNS]
 
         return None
 
@@ -230,8 +229,8 @@ class AmplifyShifts():
 
             Modifies:
                 self._grouped_series (series.Series):
-                    Pandas Series of shifts grouped by 'need_id' with all shifts
-                    contained in a 'shifts' dict key.
+                    Pandas Series of shifts grouped by 'need_id' with all
+                    shifts contained in a 'shifts' dict key.
 
             Returns:
                 None.

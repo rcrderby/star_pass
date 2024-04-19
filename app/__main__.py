@@ -9,6 +9,7 @@
 
 # Constants
 
+
 # Main application function definition
 def main() -> None:
     pass
