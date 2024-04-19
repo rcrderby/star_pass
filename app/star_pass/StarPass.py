@@ -3,9 +3,13 @@
 
 # Imports - Python Standard Library
 from os import getenv
+from os import path
 
 # Imports - Third-Party
+import pandas as pd
 from dotenv import load_dotenv
+from pandas.core import frame, series
+from pandas.core.groupby.generic import DataFrameGroupBy
 from requests import request
 
 # Load environment variables
