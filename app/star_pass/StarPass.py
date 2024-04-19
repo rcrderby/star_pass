@@ -59,7 +59,10 @@ class AmplifyShifts():
             Returns:
                 None.
         """
-        pass
+        # Placeholder variables for data transformation methods
+        self._shift_data = None
+        self._grouped_shift_data = None
+        self._grouped_series = None
 
     def _send_api_request(self) -> None:
         """ Create base API request.
@@ -102,12 +105,16 @@ class AmplifyShifts():
                 shift_data (frame.DataFrame):
                     Pandas Data Frame of raw shift data.
         """
+        # Read CSV file
         shift_data = pd.read_csv(
             filepath_or_buffer=input_file,
             dtype='string'
         )
 
-        return shift_data
+        # Update self._shift_data
+        self._shift_data = shift_data
+
+        return None
 
     def remove_duplicate_shifts(
             self,
@@ -124,12 +131,13 @@ class AmplifyShifts():
                     Pandas Data Frame of shift data with duplicates
                     removed.
         """
-        shift_data.drop_duplicates(
+        # Drop duplicate rows in self._shift_data
+        self._shift_data.drop_duplicates(
             inplace=True,
             keep='first'
         )
 
-        return shift_data
+        return None
 
     def format_shift_start(
             self,
@@ -147,17 +155,19 @@ class AmplifyShifts():
                 shift_data (frame.DataFrame):
                     Pandas Data Frame with shift data in a new 'start' column.
         """
-        shift_data[START_COLUMN] = shift_data[
+        # Add 'start' column with data from 'start_date' and 'start_time'
+        self._shift_data[START_COLUMN] = self._shift_data[
             [
                 START_DATE_COLUMN,
                 START_TIME_COLUMN
             ]
         ].agg(
+            # Join data with a blank space separator
             ' '.join,
             axis=1
         )
 
-        return shift_data
+        return None
 
     def drop_unused_columns(
             self,
@@ -171,14 +181,16 @@ class AmplifyShifts():
 
             Returns:
                 shift_data (frame.DataFrame):
-                    Pandas Data Frame of shift data without extra columns.
+                    Pandas Data Frame of shift data without informational
+                    columns.
         """
-        shift_data.drop(
+        # Drop informational columns not required for an API POST request body
+        self._shift_data.drop(
             columns=DROP_COLUMNS,
             inplace=True
         )
 
-        return shift_data
+        return None
 
     def group_shift_data(
             self,
@@ -195,11 +207,13 @@ class AmplifyShifts():
                     Pandas Grouped Data Frame of shift data, grouped by each
                     shift's 'need_id'.
         """
-        grouped_shift_data = shift_data.groupby(
+        # Group shifts by 'need_id' and remove other columns from the POST body
+        self._grouped_shift_data = self._shift_data.groupby(
             by=[GROUP_BY_COLUMN]
+        # Excludes the 'need_id' from what will be the API request POST body
         )[KEEP_COLUMNS]
 
-        return grouped_shift_data
+        return None
 
     def create_grouped_series(
             self,
@@ -219,7 +233,8 @@ class AmplifyShifts():
                     Pandas Series of shifts grouped by 'need_id' with all shifts
                     contained in a 'shifts' dict key.
         """
-        grouped_series = grouped_shift_data.apply(
+        # Insert a 'shifts' dict between the 'need_id' and the shift data
+        self._grouped_series = self._grouped_shift_data.apply(
             func=lambda x: {
                 SHIFTS_DICT_KEY_NAME: x.to_dict(
                     orient='records'
@@ -227,7 +242,7 @@ class AmplifyShifts():
             }
         )
 
-        return grouped_series
+        return None
 
     def create_shift_json_data(
             self,
@@ -241,7 +256,8 @@ class AmplifyShifts():
             Returns:
                 None.
         """
-        grouped_series.to_json(
+        # Convert grouped series to JSON data for HTTP API requests
+        self._grouped_series.to_json(
             indent=2,
             mode='w',
             orient='index',
