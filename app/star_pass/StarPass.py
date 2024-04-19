@@ -64,7 +64,10 @@ class AmplifyShifts():
         self._grouped_shift_data: DataFrameGroupBy = None
         self._grouped_series: series.Series = None
 
-    def _send_api_request(self) -> None:
+    def _send_api_request(
+            self,
+            method: str
+    ) -> None:
         """ Create base API request.
 
             Args:
@@ -75,12 +78,12 @@ class AmplifyShifts():
         """
 
         # Construct URL
-        # url = f'{BASE_URL}{endpoint}'
+        url = f'{BASE_URL}'
 
         # Send API request
         response_data = request(
-            # Type
-            # url=url,
+            method=method,
+            url=url,
             headers=BASE_HEADERS,
             timeout=3
         )
@@ -276,4 +279,5 @@ class AmplifyShifts():
             Returns:
                 None.
         """
-        pass
+
+        return None
