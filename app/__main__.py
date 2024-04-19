@@ -12,7 +12,16 @@
 
 # Main application function definition
 def main() -> None:
-    pass
+    """ Main application.
+
+        Args:
+            None.
+
+        Returns None.
+
+    """
+
+    return None
 
 
 # Run main application function
