@@ -13,7 +13,10 @@ from pandas.core.groupby.generic import DataFrameGroupBy
 from requests import request
 
 # Load environment variables
-load_dotenv()
+load_dotenv(
+    dotenv_path='./.env',
+    encoding='utf-8'
+)
 
 # Constants
 GC_TOKEN = getenv(key='GC_TOKEN')
