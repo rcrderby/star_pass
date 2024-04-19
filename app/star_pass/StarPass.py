@@ -251,8 +251,8 @@ class AmplifyShifts():
 
             Args:
                 self._grouped_series (series.Series):
-                    Pandas Series of shifts grouped by 'need_id' with all shifts
-                    contained in a 'shifts' dict key.
+                    Pandas Series of shifts grouped by 'need_id' with all
+                    shifts contained in a 'shifts' dict key.
 
             Returns:
                 None.
