@@ -377,9 +377,6 @@ deprecated-modules=
 # to the given file (report RP0402 must not be disabled).
 ext-import-graph=
 
-# Used when pylint has been unable to import a module (E0401)
-import-error=no
-
 # Output a graph (.gv or any supported image format) of all (i.e. internal and
 # external) dependencies to the given file (report RP0402 must not be
 # disabled).
