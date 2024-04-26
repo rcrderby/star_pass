@@ -49,6 +49,7 @@ jobs:
           VALIDATE_PYTHON_PYLINT: true
           VALIDATE_YAML: true
           # Language-specific configuration
+          PYTHON_PYLINT_CONFIG_FILE: .pylintrc
           YAML_ERROR_ON_WARNING: true
 
       # setup-python action documentation
