@@ -1,8 +1,22 @@
 ---
 # This action performs linting and static code analysis
+## Based on Super Linter
+## https://github.com/super-linter/super-linter
 
 # Name of the action
 name: Linting and Static Code Analysis
+
+env:
+  VALIDATE_DOCKERFILE_HADOLINT: true
+  VALIDATE_GITHUB_ACTIONS: true
+  VALIDATE_GITLEAKS: true
+  VALIDATE_JSON: true
+  VALIDATE_MARKDOWN: true
+  VALIDATE_PYTHON: true
+  VALIDATE_PYTHON_FLAKE8: true
+  VALIDATE_PYTHON_PYLINT: true
+  VALIDATE_YAML: true
+  YAML_ERROR_ON_WARNING: true
 
 # Events that trigger the action
 on:
@@ -15,46 +29,59 @@ jobs:
     name: Lint repository files
     runs-on: ubuntu-latest
 
+    # Job permissions
+    permissions:
+      contents: read
+      packages: read
+      # statuses: write
+
     steps:
       # checkout action documentation
       # https://github.com/marketplace/actions/checkout
       - name: Checkout repository
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      # Super Linter action documentation
+      # https://github.com/marketplace/actions/super-linter
+      - name: Super Linter
+        uses: super-linter/super-linter@v6.4.1
 
       # setup-python action documentation
       # https://github.com/marketplace/actions/setup-python
-      - name: Setup Python
-        uses: actions/setup-python@v5
-        with:
-          python-version: '3.11'
+      # - name: Setup Python
+      #   uses: actions/setup-python@v5
+      #   with:
+      #     python-version: '3.11'
 
       # Install linting packages
-      - name: Install linting packages
-        run: |
-          python -m pip install --upgrade pip
-          python -m pip install --upgrade -r \
-            requirements/requirements_linting.txt
+      # - name: Install linting packages
+      #   run: |
+      #     python -m pip install --upgrade pip
+      #     python -m pip install --upgrade -r \
+      #       requirements/requirements_linting.txt
 
       # Lint YAML (.yml/.yaml) files
-      - name: Lint YAML files
-        run: |
-          yamllint .
+      # - name: Lint YAML files
+      #   run: |
+      #     yamllint .
 
       # Lint Python (.py) files
-      - name: Lint Python files
-        run: |
-          flake8 . --count --show-source --statistics
+      # - name: Lint Python files
+      #   run: |
+      #     flake8 . --count --show-source --statistics
 
       # Python static code analysis with bandit
-      - name: Python static code analysis
-        run: |
-          bandit -rc .bandit.yml .
+      # - name: Python static code analysis
+      #   run: |
+      #     bandit -rc .bandit.yml .
 
       # Lint markdown (.md) files
       # markdownlint-cli action documentation
       # https://github.com/marketplace/actions/markdownlint-cli
-      - name: markdownlint-cli
-        uses: nosborn/github-action-markdown-cli@v3.3.0
-        with:
-          files: .
-          config_file: .markdownlint.json
+      # - name: markdownlint-cli
+      #   uses: nosborn/github-action-markdown-cli@v3.3.0
+      #   with:
+      #     files: .
+      #     config_file: .markdownlint.json
