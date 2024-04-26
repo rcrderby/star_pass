@@ -4,7 +4,7 @@
 ## https://github.com/super-linter/super-linter
 
 # Name of the action
-name: Linting and Static Code Analysis
+name: Super Linter
 
 # Events that trigger the action
 on:
