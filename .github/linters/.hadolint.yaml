@@ -2,6 +2,7 @@
 ##########################
 ## Hadolint config file ##
 ##########################
+## https://github.com/hadolint/hadolint
 
 failure-threshold: warning
 

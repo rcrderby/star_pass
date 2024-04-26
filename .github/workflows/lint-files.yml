@@ -40,10 +40,10 @@ jobs:
           # Report status checks
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           # Specify languages to lint
-          # VALIDATE_DOCKERFILE_HADOLINT: true
+          VALIDATE_DOCKERFILE_HADOLINT: true
           VALIDATE_GITHUB_ACTIONS: true
           VALIDATE_GITLEAKS: true
-          # VALIDATE_JSON: true
+          VALIDATE_JSON: true
           VALIDATE_MARKDOWN: true
           VALIDATE_PYTHON_FLAKE8: true
           VALIDATE_PYTHON_PYLINT: true
