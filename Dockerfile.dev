@@ -15,8 +15,8 @@ RUN apt-get update && \
 COPY requirements/requirements_dev.txt requirements/requirements_dev.txt
 
 # Upgrade pip and install requirements from the requirements file
-RUN python -m pip install --upgrade pip && \
-    python -m pip install -r requirements/requirements_dev.txt && \
+RUN python -m pip install --no-cache-dir --upgrade pip && \
+    python -m pip install --no-cache-dir -r requirements/requirements_dev.txt && \
     rm -rf requirements
 
 # Set the PYTHONPATH environment variable
