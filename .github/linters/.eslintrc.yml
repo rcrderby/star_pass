@@ -43,7 +43,7 @@ plugins:
 # Rules #
 #########
 rules:
-  no-warning-comments: warn
+  no-warning-comments: off  # https://eslint.org/docs/latest/rules/no-warning-comments
 
 ##############################
 # Overrides for JSON parsing #
