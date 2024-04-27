@@ -42,7 +42,8 @@ plugins:
 #########
 # Rules #
 #########
-rules: {}
+rules:
+  no-warning-comments: warn
 
 ##############################
 # Overrides for JSON parsing #
