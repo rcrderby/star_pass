@@ -42,7 +42,7 @@ plugins:
 #########
 # Rules #
 #########
-rules: {}
+rules: { "no-inline-comments": "off" }
 
 ##############################
 # Overrides for JSON parsing #
@@ -59,7 +59,7 @@ overrides:
       jsonSyntax: JSON
     rules:
       # https://eslint.org/docs/latest/rules/no-inline-comments
-      no-inline-comments: warn
+      no-inline-comments: off
 
   # JSONC files
   - files:
