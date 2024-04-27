@@ -42,10 +42,7 @@ plugins:
 #########
 # Rules #
 #########
-# https://eslint.org/docs/latest/rules/no-warning-comments
-rules: {
-  "no-warning-comments": "off"
-}
+rules: {}
 
 ##############################
 # Overrides for JSON parsing #
@@ -60,6 +57,9 @@ overrides:
     parser: jsonc-eslint-parser
     parserOptions:
       jsonSyntax: JSON
+    rules:
+      # https://eslint.org/docs/latest/rules/no-warning-comments
+      no-warning-comments: warn
 
   # JSONC files
   - files:
