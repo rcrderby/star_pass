@@ -4,10 +4,12 @@ FROM python:3.11-slim-buster
 # Set the working directory
 WORKDIR /app
 
-# Update OS package list and install git
+# Update OS package list, install git, and clear apt cache
 RUN apt-get update && \
     apt-get upgrade -y && \
-    apt-get install -y git
+    apt-get install --no-install-recommends -y git && \
+    && apt-get clean \
+    && rm -rf /var/lib/apt/lists/*
 
 # Copy the Python pip requirements file
 COPY requirements/requirements.txt requirements/requirements.txt
