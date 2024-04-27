@@ -58,8 +58,8 @@ overrides:
     parserOptions:
       jsonSyntax: JSON
     rules:
-      # https://eslint.org/docs/latest/rules/no-warning-comments
-      no-warning-comments: off
+      # https://eslint.org/docs/latest/rules/no-inline-comments
+      no-inline-comments: warn
 
   # JSONC files
   - files:
