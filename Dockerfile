@@ -8,8 +8,8 @@ WORKDIR /app
 RUN apt-get update && \
     apt-get upgrade -y && \
     apt-get install --no-install-recommends -y git && \
-    && apt-get clean \
-    && rm -rf /var/lib/apt/lists/*
+    apt-get clean && \
+    rm -rf /var/lib/apt/lists/*
 
 # Copy the Python pip requirements file
 COPY requirements/requirements.txt requirements/requirements.txt
