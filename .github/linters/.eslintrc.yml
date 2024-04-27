@@ -59,7 +59,7 @@ overrides:
       jsonSyntax: JSON
     rules:
       # https://eslint.org/docs/latest/rules/no-warning-comments
-      no-warning-comments: warn
+      no-warning-comments: off
 
   # JSONC files
   - files:
