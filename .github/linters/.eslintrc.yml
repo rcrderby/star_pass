@@ -42,9 +42,7 @@ plugins:
 #########
 # Rules #
 #########
-rules: {
-  "no-comments": "off"
-}
+rules: { }
 
 ##############################
 # Overrides for JSON parsing #
@@ -72,9 +70,6 @@ overrides:
     parser: jsonc-eslint-parser
     parserOptions:
       jsonSyntax: JSONC
-    rules: {
-      "no-comments": "off"
-    }
 
   # JSON5 files
   - files:
@@ -84,6 +79,3 @@ overrides:
     parser: jsonc-eslint-parser
     parserOptions:
       jsonSyntax: JSON5
-    rules: {
-      "no-comments": "off"
-    }
