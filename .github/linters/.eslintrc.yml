@@ -42,7 +42,9 @@ plugins:
 #########
 # Rules #
 #########
-rules: { }
+rules: {
+  "no-comments": "off"
+}
 
 ##############################
 # Overrides for JSON parsing #
@@ -59,7 +61,7 @@ overrides:
       jsonSyntax: JSON
     # https://ota-meshi.github.io/eslint-plugin-jsonc/rules/no-comments.html
     rules: {
-      no-"comments": "off"
+      "no-comments": "off"
     }
 
   # JSONC files
@@ -70,6 +72,9 @@ overrides:
     parser: jsonc-eslint-parser
     parserOptions:
       jsonSyntax: JSONC
+    rules: {
+      "no-comments": "off"
+    }
 
   # JSON5 files
   - files:
@@ -79,3 +84,6 @@ overrides:
     parser: jsonc-eslint-parser
     parserOptions:
       jsonSyntax: JSON5
+    rules: {
+      "no-comments": "off"
+    }
