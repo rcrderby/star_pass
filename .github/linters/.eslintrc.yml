@@ -58,7 +58,7 @@ overrides:
     parserOptions:
       jsonSyntax: JSON
     rules: {
-      "json/comment-not-permitted": "off"
+      "jsonc/unexpected-comment": "off"
     }
 
   # JSONC files
