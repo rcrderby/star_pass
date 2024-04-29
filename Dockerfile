@@ -4,7 +4,7 @@ FROM python:3.11-slim-buster
 # Set the working directory
 WORKDIR /app
 
-# Update OS package list, install git, and clear apt cache
+# Update OS package list, install packages, and clear apt cache
 RUN apt-get update && \
     apt-get upgrade -y && \
     apt-get clean && \
