@@ -57,13 +57,10 @@ overrides:
     parser: jsonc-eslint-parser
     parserOptions:
       jsonSyntax: JSON
-    # https://ota-meshi.github.io/eslint-plugin-jsonc/rules/no-comments.html
-    # rules: {
-    #   "no-comments": "off"
-    # }
-    rules: {
-      "auto": true
-    }
+    rules:
+      json/*:
+        - error
+        - allowComments: True
 
   # JSONC files
   - files:
