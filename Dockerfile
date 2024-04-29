@@ -7,7 +7,6 @@ WORKDIR /app
 # Update OS package list, install git, and clear apt cache
 RUN apt-get update && \
     apt-get upgrade -y && \
-    apt-get install --no-install-recommends -y git && \
     apt-get clean && \
     rm -rf /var/lib/apt/lists/*
 
@@ -16,7 +15,7 @@ COPY requirements/requirements.txt requirements/requirements.txt
 
 # Upgrade pip and install requirements from the requirements file
 RUN python -m pip install --no-cache-dir --upgrade pip && \
-    python -m pip install --no-cache-dir -r requirements/requirements_dev.txt && \
+    python -m pip install --no-cache-dir -r requirements/requirements.txt && \
     rm -rf requirements
 
 # Set the PYTHONPATH environment variable
