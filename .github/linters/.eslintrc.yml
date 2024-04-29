@@ -53,12 +53,12 @@ overrides:
   - files:
       - "*.json"
     extends:
-      - plugin:jsonc/recommended-with-jsonc
+      - plugin:jsonc/recommended-with-json
     parser: jsonc-eslint-parser
     parserOptions:
       jsonSyntax: JSON
     rules: {
-      "jsonc/no-comments": "off"
+      "json/comment-not-permitted": "off"
     }
 
   # JSONC files
