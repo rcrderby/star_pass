@@ -58,7 +58,8 @@ overrides:
     parserOptions:
       jsonSyntax: JSON
     rules: {
-      "jsonc/unexpected-comment": "off"
+      "jsonc/auto": "off"
+      # "jsonc/unexpected-comment": "off"
     }
 
   # JSONC files
