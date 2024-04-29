@@ -50,4 +50,5 @@ jobs:
           VALIDATE_YAML: true
           # Language-specific configuration
           PYTHON_PYLINT_CONFIG_FILE: .pylintrc
+          YAML_CONFIG_FILE: .yamllint
           YAML_ERROR_ON_WARNING: true
