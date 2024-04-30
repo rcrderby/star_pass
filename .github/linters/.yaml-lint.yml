@@ -32,5 +32,8 @@ rules:
   # Allow the use of 'on' in GitHub Actions
   truthy:
     level: warning
+    # Allow use of the "on" key label for GitHub Actions workflows
+    ## Local development path and GitHub Actions Super Linter path
     ignore: |
-      .github/workflows
+      - .github/workflows
+      - /github/workspace/.github/workflows
