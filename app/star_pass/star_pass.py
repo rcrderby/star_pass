@@ -2,12 +2,15 @@
 """ Star Pass Classes and Methods """
 
 # Imports - Python Standard Library
+from json import load, loads
 from os import getenv
 from os import path
+from typing import Dict
 
 # Imports - Third-Party
 import pandas as pd
 from dotenv import load_dotenv
+from jsonschema import validate, ValidationError
 from pandas.core import frame, series
 from pandas.core.groupby.generic import DataFrameGroupBy
 from requests import request
@@ -24,22 +27,33 @@ BASE_HEADERS = {
     'Authorization': f'Bearer {GC_TOKEN}',
     'Accept': 'application/json'
 }
-BASE_FILE_PATH = path.join(
-    getenv('BASE_FILE_RELATIVE_PATH'),
-    getenv('BASE_FILE_NAME')
-)
 BASE_URL = getenv(key='BASE_URL')
-GROUP_BY_COLUMN = getenv('GROUP_BY_COLUMN')
-INPUT_FILE_EXTENSION = getenv('INPUT_FILE_EXTENSION')
-INPUT_FILE = f'{BASE_FILE_PATH}{INPUT_FILE_EXTENSION}'
 DROP_COLUMNS = getenv('DROP_COLUMNS').split(
     sep=', '
+)
+GROUP_BY_COLUMN = getenv('GROUP_BY_COLUMN')
+INPUT_FILE_EXTENSION = getenv('INPUT_FILE_EXTENSION')
+INPUT_FILE_PATH = path.join(
+    getenv('BASE_FILE_PATH'),
+    getenv('INPUT_FILE_DIR'),
+    getenv('BASE_FILE_NAME')
+)
+INPUT_FILE = f'{INPUT_FILE_PATH}{INPUT_FILE_EXTENSION}'
+JSON_SCHEMA_DIR = getenv('JSON_SCHEMA_DIR')
+JSON_SCHEMA_SHIFT_FILE = path.join(
+    JSON_SCHEMA_DIR,
+    getenv('JSON_SCHEMA_SHIFT_FILE')
 )
 KEEP_COLUMNS = getenv('KEEP_COLUMNS').split(
     sep=', '
 )
 OUTPUT_FILE_EXTENSION = getenv('OUTPUT_FILE_EXTENSION')
-OUTPUT_FILE = f'{BASE_FILE_PATH}{OUTPUT_FILE_EXTENSION}'
+OUTPUT_FILE_PATH = path.join(
+    getenv('BASE_FILE_PATH'),
+    getenv('OUTPUT_FILE_DIR'),
+    getenv('BASE_FILE_NAME')
+)
+OUTPUT_FILE = f'{OUTPUT_FILE_PATH}{OUTPUT_FILE_EXTENSION}'
 SHIFTS_DICT_KEY_NAME = getenv('SHIFTS_DICT_KEY_NAME')
 START_COLUMN = getenv('START_COLUMN')
 START_DATE_COLUMN = getenv('START_DATE_COLUMN')
@@ -63,6 +77,8 @@ class AmplifyShifts():
         self._shift_data: frame.DataFrame = None
         self._grouped_shift_data: DataFrameGroupBy = None
         self._grouped_series: series.Series = None
+        self._json_shift_data: Dict = None
+        self._json_shift_data_valid: bool = None
 
     def _send_api_request(
             self,
@@ -249,7 +265,10 @@ class AmplifyShifts():
 
         return None
 
-    def _create_shift_json_data(self) -> None:
+    def _create_shift_json_data(
+            self,
+            write_to_file: bool = False
+    ) -> None:
         """ Create shift JSON data for the HTTP body.
 
             Args:
@@ -257,20 +276,75 @@ class AmplifyShifts():
                     Pandas Series of shifts grouped by 'need_id' with all
                     shifts contained in a 'shifts' dict key.
 
+                write_to_file (bool = False):
+                    Write the resulting JSON data to a file in addition to
+                    storing the data in self._json_shift_data. Default value
+                    is False.
+
             Returns:
                 None.
         """
-        # Convert grouped series to JSON data for HTTP API requests
-        self._grouped_series.to_json(
+
+        if write_to_file is True:
+            # Save grouped series to JSON data to a file
+            self._grouped_series.to_json(
+                indent=2,
+                mode='w',
+                orient='index',
+                path_or_buf=OUTPUT_FILE
+            )
+
+        # Store grouped series to JSON data for HTTP API requests
+        self._json_shift_data = self._grouped_series.to_json(
             indent=2,
-            mode='w',
             orient='index',
-            path_or_buf=OUTPUT_FILE
         )
 
         return None
 
-    def create_new_shifts_(self) -> None:
+    def _validate_shift_json_data(self) -> bool:
+        """ Validate shift JSON data against JSON Schema.
+
+            Args:
+                self._json_shift_data (Dict):
+                    Dict of formatted JSON shift data.
+
+            Modifies:
+                self._json_shift_data_valid (bool):
+                    True if _json_shift_data complies with JSON Schema.
+                    False if _json_shift_data does not comply with JSON Schema.
+
+            Returns:
+                None.
+        """
+
+        # Load JSON Schema file for shift data
+        with open(
+            file=JSON_SCHEMA_SHIFT_FILE,
+            mode='rt',
+            encoding='utf-8'
+        ) as json_schema_shifts:
+            json_schema_shifts = load(json_schema_shifts)
+
+        # Validate shift data against JSON Schema
+        try:
+            # Attempt to validate JSON shift data against JSON Schema
+            validate(
+                instance=loads(self._json_shift_data),
+                schema=json_schema_shifts
+            )
+
+            # Set self._json_shift_data_valid to True
+            self._json_shift_data_valid = True
+
+        # Indicate invalidate JSON shift data
+        except ValidationError:
+            # Set self._json_shift_data_valid to False
+            self._json_shift_data_valid = False
+
+        return None
+
+    def create_new_shifts(self) -> None:
         """ Upload shift data to create new shifts.
 
             Args:
