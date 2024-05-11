@@ -2,7 +2,7 @@
 """ Star Pass Classes and Methods """
 
 # Imports - Python Standard Library
-from json import load
+from json import load, loads
 from os import getenv
 from os import path
 from typing import Dict
@@ -10,7 +10,7 @@ from typing import Dict
 # Imports - Third-Party
 import pandas as pd
 from dotenv import load_dotenv
-from jsonschema import validate
+from jsonschema import validate, ValidationError
 from pandas.core import frame, series
 from pandas.core.groupby.generic import DataFrameGroupBy
 from requests import request
@@ -40,7 +40,7 @@ INPUT_FILE_PATH = path.join(
 )
 INPUT_FILE = f'{INPUT_FILE_PATH}{INPUT_FILE_EXTENSION}'
 JSON_SCHEMA_DIR = getenv('JSON_SCHEMA_DIR')
-JSON_SCHEMA_SHIFT_PATH = path.join(
+JSON_SCHEMA_SHIFT_FILE = path.join(
     JSON_SCHEMA_DIR,
     getenv('JSON_SCHEMA_SHIFT_FILE')
 )
@@ -78,6 +78,7 @@ class AmplifyShifts():
         self._grouped_shift_data: DataFrameGroupBy = None
         self._grouped_series: series.Series = None
         self._json_shift_data: Dict = None
+        self._json_shift_data_valid: bool = None
 
     def _send_api_request(
             self,
@@ -301,15 +302,45 @@ class AmplifyShifts():
 
         return None
 
-    def _validate_shift_json_data(self) -> None:
+    def _validate_shift_json_data(self) -> bool:
         """ Validate shift JSON data against JSON Schema.
 
             Args:
-                None.
+                self._json_shift_data (Dict):
+                    Dict of formatted JSON shift data.
+
+            Modifies:
+                self._json_shift_data_valid (bool):
+                    True if _json_shift_data complies with JSON Schema.
+                    False if _json_shift_data does not comply with JSON Schema.
 
             Returns:
                 None.
         """
+
+        # Load JSON Schema file for shift data
+        with open(
+            file=JSON_SCHEMA_SHIFT_FILE,
+            mode='rt',
+            encoding='utf-8'
+        ) as json_schema_shifts:
+            json_schema_shifts = load(json_schema_shifts)
+
+        # Validate shift data against JSON Schema
+        try:
+            # Attempt to validate JSON shift data against JSON Schema
+            validate(
+                instance=loads(self._json_shift_data),
+                schema=json_schema_shifts
+            )
+
+            # Set self._json_shift_data_valid to True
+            self._json_shift_data_valid = True
+
+        # Indicate invalidate JSON shift data
+        except ValidationError:
+            # Set self._json_shift_data_valid to False
+            self._json_shift_data_valid = False
 
         return None
 
