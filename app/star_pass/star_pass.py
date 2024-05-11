@@ -2,12 +2,15 @@
 """ Star Pass Classes and Methods """
 
 # Imports - Python Standard Library
+from json import load
 from os import getenv
 from os import path
+from typing import Dict
 
 # Imports - Third-Party
 import pandas as pd
 from dotenv import load_dotenv
+from jsonschema import validate
 from pandas.core import frame, series
 from pandas.core.groupby.generic import DataFrameGroupBy
 from requests import request
@@ -36,6 +39,11 @@ INPUT_FILE_PATH = path.join(
     getenv('BASE_FILE_NAME')
 )
 INPUT_FILE = f'{INPUT_FILE_PATH}{INPUT_FILE_EXTENSION}'
+JSON_SCHEMA_DIR = getenv('JSON_SCHEMA_DIR')
+JSON_SCHEMA_SHIFT_PATH = path.join(
+    JSON_SCHEMA_DIR,
+    getenv('JSON_SCHEMA_SHIFT_FILE')
+)
 KEEP_COLUMNS = getenv('KEEP_COLUMNS').split(
     sep=', '
 )
@@ -69,6 +77,7 @@ class AmplifyShifts():
         self._shift_data: frame.DataFrame = None
         self._grouped_shift_data: DataFrameGroupBy = None
         self._grouped_series: series.Series = None
+        self._json_shift_data: Dict = None
 
     def _send_api_request(
             self,
@@ -255,7 +264,10 @@ class AmplifyShifts():
 
         return None
 
-    def _create_shift_json_data(self) -> None:
+    def _create_shift_json_data(
+            self,
+            write_to_file: bool = False
+    ) -> None:
         """ Create shift JSON data for the HTTP body.
 
             Args:
@@ -263,16 +275,41 @@ class AmplifyShifts():
                     Pandas Series of shifts grouped by 'need_id' with all
                     shifts contained in a 'shifts' dict key.
 
+                write_to_file (bool = False):
+                    Write the resulting JSON data to a file in addition to
+                    storing the data in self._json_shift_data. Default value
+                    is False.
+
             Returns:
                 None.
         """
-        # Convert grouped series to JSON data for HTTP API requests
-        self._grouped_series.to_json(
+
+        if write_to_file is True:
+            # Save grouped series to JSON data to a file
+            self._grouped_series.to_json(
+                indent=2,
+                mode='w',
+                orient='index',
+                path_or_buf=OUTPUT_FILE
+            )
+
+        # Store grouped series to JSON data for HTTP API requests
+        self._json_shift_data = self._grouped_series.to_json(
             indent=2,
-            mode='w',
             orient='index',
-            path_or_buf=OUTPUT_FILE
         )
+
+        return None
+
+    def _validate_shift_json_data(self) -> None:
+        """ Validate shift JSON data against JSON Schema.
+
+            Args:
+                None.
+
+            Returns:
+                None.
+        """
 
         return None
 
