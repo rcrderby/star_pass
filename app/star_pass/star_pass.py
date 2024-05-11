@@ -276,7 +276,7 @@ class AmplifyShifts():
 
         return None
 
-    def create_new_shifts_(self) -> None:
+    def create_new_shifts(self) -> None:
         """ Upload shift data to create new shifts.
 
             Args:
