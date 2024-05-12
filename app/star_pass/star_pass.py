@@ -80,6 +80,16 @@ class AmplifyShifts():
         self._json_shift_data: Dict = None
         self._json_shift_data_valid: bool = None
 
+        # Call non-public functions to initialize workflow
+        self._read_shift_csv_data()
+        self._remove_duplicate_shifts()
+        self._format_shift_start()
+        self._drop_unused_columns()
+        self._group_shift_data()
+        self._create_grouped_series()
+        self._create_shift_json_data()
+        self._validate_shift_json_data()
+
     def _send_api_request(
             self,
             method: str
