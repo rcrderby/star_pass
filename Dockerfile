@@ -1,4 +1,4 @@
-# star_pass Container
+# star-pass Container
 FROM python:3.11-slim-buster
 
 # Set the working directory

@@ -2,7 +2,7 @@
 // https://code.visualstudio.com/docs/remote/devcontainerjson-reference
 {
     // Docker build instructions
-    "name": "star_pass",
+    "name": "star-pass",
     "build": {
         "dockerfile": "../Dockerfile.dev",
         "context": ".."
