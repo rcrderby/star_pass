@@ -5,7 +5,6 @@
 from json import load, loads
 from os import getenv
 from os import path
-from typing import Dict
 
 # Imports - Third-Party
 import pandas as pd
@@ -77,7 +76,7 @@ class AmplifyShifts():
         self._shift_data: frame.DataFrame = None
         self._grouped_shift_data: DataFrameGroupBy = None
         self._grouped_series: series.Series = None
-        self._json_shift_data: Dict = None
+        self._json_shift_data: str = None
         self._json_shift_data_valid: bool = None
 
         # Call non-public functions to initialize workflow
