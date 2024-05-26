@@ -1,8 +1,11 @@
+# .env file support
+python_dotenv
+
 # Data formats
 pyyaml
 
-# .env file support
-python_dotenv
+# HTTP requests
+requests
 
 # Python formatting
 autopep8
@@ -12,9 +15,6 @@ pylint
 # Python interpreter
 ipython
 
-# Static code analysis
-bandit
-
 # Pandas data structures
 pandas
 
@@ -22,8 +22,8 @@ pandas
 pytest
 pytest-cov
 
-# HTTP requests
-requests
+# Static code analysis
+bandit
 
 # YAML formatting
 yamllint
