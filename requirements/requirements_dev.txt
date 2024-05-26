@@ -7,6 +7,9 @@ pyyaml
 # HTTP requests
 requests
 
+# JSON Schema validation
+jsonschema
+
 # Python formatting
 autopep8
 flake8
