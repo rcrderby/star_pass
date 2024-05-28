@@ -146,20 +146,25 @@ class AmplifyShifts():
             if response.ok is not True:
                 response.raise_for_status()
 
-            # Display HTTP response
-            print(
-                '\n** HTTP Response **\n'
-                f'HTTP {response.status_code} {response.reason}\n'
+            # Set HTTP response output message
+            output_msg = (
+                '** HTTP API Response **\n'
+                f'Response: HTTP {response.status_code} {response.reason}'
             )
 
         else:
-            # Display request
-            print(
-                '\n** HTTP API Dry Run **\n\n'
-                f"URL: '{url}'\n"
-                'Payload:\n'
-                f'{dumps(json, indent=2)}'
+            # Set dry run output message
+            output_msg = (
+                '** HTTP API Dry Run **'
             )
+
+        # Display output message
+        print(
+            f'\n{output_msg}\n'
+            f'URL: {url}\n'
+            f'Shift Count: {len(json.get("shifts"))}\n'
+            f'Payload:\n{dumps(json, indent=2)}'
+        )
 
         return None
 
