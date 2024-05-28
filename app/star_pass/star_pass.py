@@ -148,7 +148,8 @@ class AmplifyShifts():
 
             # Display HTTP response
             print(
-                f'HTTP {response.status_code} {response.reason}'
+                '\n** HTTP Response **\n'
+                f'HTTP {response.status_code} {response.reason}\n'
             )
 
         else:
