@@ -64,15 +64,24 @@ START_TIME_COLUMN = getenv('START_TIME_COLUMN')
 class AmplifyShifts():
     """ AmplifyShifts base class object. """
 
-    def __init__(self) -> None:
+    def __init__(
+            self,
+            dry_run: bool = False
+    ) -> None:
         """ AmplifyShifts initialization method.
 
             Args:
-                None.
+                dry_run (bool):
+                    Prepare HTTP API requests without sending the
+                    requests.  Default value is False.
 
             Returns:
                 None.
         """
+
+        # Set the value of self._dry_run
+        self._dry_run = dry_run
+
         # Placeholder variables for data transformation methods
         self._shift_data: frame.DataFrame = None
         self._grouped_shift_data: DataFrameGroupBy = None
@@ -286,7 +295,7 @@ class AmplifyShifts():
                     Pandas Series of shifts grouped by 'need_id' with all
                     shifts contained in a 'shifts' dict key.
 
-                write_to_file (bool = False):
+                write_to_file (bool):
                     Write the resulting JSON data to a file in addition to
                     storing the data in self._shift_data. Default value
                     is False.
@@ -358,7 +367,7 @@ class AmplifyShifts():
         return None
 
     def create_new_shifts(self) -> None:
-        """ Upload shift data to create new shifts.
+        """ Upload shift data to create new Amplify shifts.
 
             Args:
                 None.
