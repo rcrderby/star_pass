@@ -2,10 +2,10 @@
 """ Star Pass Classes and Methods """
 
 # Imports - Python Standard Library
-from json import load, loads
+from json import dumps, load
 from os import getenv
 from os import path
-from typing import Dict
+from typing import Any, Dict
 
 # Imports - Third-Party
 import pandas as pd
@@ -24,14 +24,16 @@ load_dotenv(
 # Constants
 GC_TOKEN = getenv(key='GC_TOKEN')
 BASE_HEADERS = {
+    'Accept': 'application/json',
     'Authorization': f'Bearer {GC_TOKEN}',
-    'Accept': 'application/json'
+    'Content-Type': 'application/json'
 }
 BASE_URL = getenv(key='BASE_URL')
 DROP_COLUMNS = getenv('DROP_COLUMNS').split(
     sep=', '
 )
 GROUP_BY_COLUMN = getenv('GROUP_BY_COLUMN')
+HTTP_TIMEOUT = 3
 INPUT_FILE_EXTENSION = getenv('INPUT_FILE_EXTENSION')
 INPUT_FILE_PATH = path.join(
     getenv('BASE_FILE_PATH'),
@@ -64,21 +66,30 @@ START_TIME_COLUMN = getenv('START_TIME_COLUMN')
 class AmplifyShifts():
     """ AmplifyShifts base class object. """
 
-    def __init__(self) -> None:
+    def __init__(
+            self,
+            dry_run: bool = False
+    ) -> None:
         """ AmplifyShifts initialization method.
 
             Args:
-                None.
+                dry_run (bool):
+                    Prepare HTTP API requests without sending the
+                    requests.  Default value is False.
 
             Returns:
                 None.
         """
+
+        # Set the value of self._dry_run
+        self._dry_run = dry_run
+
         # Placeholder variables for data transformation methods
         self._shift_data: frame.DataFrame = None
         self._grouped_shift_data: DataFrameGroupBy = None
         self._grouped_series: series.Series = None
-        self._json_shift_data: Dict = None
-        self._json_shift_data_valid: bool = None
+        self._shift_data: Dict = None
+        self._shift_data_valid: bool = None
 
         # Call non-public functions to initialize workflow
         self._read_shift_csv_data()
@@ -92,32 +103,70 @@ class AmplifyShifts():
 
     def _send_api_request(
             self,
-            method: str
+            method: str,
+            url: str,
+            headers: Dict[str, str],
+            json: Any,
+            timeout: int
     ) -> None:
         """ Create base API request.
 
             Args:
-                None.
+                method (str):
+                    HTTP method (GET, POST, PUT, PATCH, DELETE).
+
+                url (str):
+                    Fully-qualified API endpoint URI.
+
+                headers (Dict[str, str]):
+                    HTTP headers.
+
+                json (Any):
+                    JSON body.
+
+                timeout (int):
+                    HTTP timeout.
 
             Returns:
                 None.
         """
 
-        # Construct URL
-        url = f'{BASE_URL}'
+        # Check for a dry run
+        if self._dry_run is False:
+            # Send API request
+            response = request(
+                method=method,
+                url=url,
+                headers=headers,
+                json=json,
+                timeout=timeout
+            )
 
-        # Send API request
-        response_data = request(
-            method=method,
-            url=url,
-            headers=BASE_HEADERS,
-            timeout=3
+            # Check for HTTP errors
+            if response.ok is not True:
+                response.raise_for_status()
+
+            # Set HTTP response output message
+            output_msg = (
+                '** HTTP API Response **\n'
+                f'Response: HTTP {response.status_code} {response.reason}'
+            )
+
+        else:
+            # Set dry run output message
+            output_msg = (
+                '** HTTP API Dry Run **'
+            )
+
+        # Display output message
+        print(
+            f'\n{output_msg}\n'
+            f'URL: {url}\n'
+            f'Shift Count: {len(json.get("shifts"))}\n'
+            f'Payload:\n{dumps(json, indent=2)}'
         )
 
-        # Create response data object
-        response = response_data.json()['data']
-
-        return response
+        return None
 
     def _read_shift_csv_data(
         self,
@@ -286,10 +335,16 @@ class AmplifyShifts():
                     Pandas Series of shifts grouped by 'need_id' with all
                     shifts contained in a 'shifts' dict key.
 
-                write_to_file (bool = False):
+                write_to_file (bool):
                     Write the resulting JSON data to a file in addition to
-                    storing the data in self._json_shift_data. Default value
+                    storing the data in self._shift_data. Default value
                     is False.
+
+            Modifies:
+                self._shift_data (Dict):
+                    Dictionary of shifts grouped by 'need_id' with all
+                    shifts for each 'need_id' contained in a 'shifts'
+                    dict key.
 
             Returns:
                 None.
@@ -304,11 +359,8 @@ class AmplifyShifts():
                 path_or_buf=OUTPUT_FILE
             )
 
-        # Store grouped series to JSON data for HTTP API requests
-        self._json_shift_data = self._grouped_series.to_json(
-            indent=2,
-            orient='index',
-        )
+        # Store grouped series data in a dictionary
+        self._shift_data = self._grouped_series.to_dict()
 
         return None
 
@@ -316,13 +368,13 @@ class AmplifyShifts():
         """ Validate shift JSON data against JSON Schema.
 
             Args:
-                self._json_shift_data (Dict):
-                    Dict of formatted JSON shift data.
+                self._shift_data (Dict):
+                    Dict of formatted shift data.
 
             Modifies:
-                self._json_shift_data_valid (bool):
-                    True if _json_shift_data complies with JSON Schema.
-                    False if _json_shift_data does not comply with JSON Schema.
+                self._shift_data_valid (bool):
+                    True if self._shift_data complies with JSON Schema.
+                    False if self._shift_data does not comply with JSON Schema.
 
             Returns:
                 None.
@@ -338,30 +390,58 @@ class AmplifyShifts():
 
         # Validate shift data against JSON Schema
         try:
-            # Attempt to validate JSON shift data against JSON Schema
+            # Attempt to validate shift data against JSON Schema
             validate(
-                instance=loads(self._json_shift_data),
+                instance=self._shift_data,
                 schema=json_schema_shifts
             )
 
-            # Set self._json_shift_data_valid to True
-            self._json_shift_data_valid = True
+            # Set self._shift_data_valid to True
+            self._shift_data_valid = True
 
         # Indicate invalidate JSON shift data
         except ValidationError:
-            # Set self._json_shift_data_valid to False
-            self._json_shift_data_valid = False
+            # Set self._shift_data_valid to False
+            self._shift_data_valid = False
 
         return None
 
-    def create_new_shifts(self) -> None:
-        """ Upload shift data to create new shifts.
+    def create_new_shifts(
+            self,
+            json: Any = None,
+            timeout: int = HTTP_TIMEOUT,
+    ) -> None:
+        """ Upload shift data to create new Amplify shifts.
 
             Args:
-                None.
+                json (Any):
+                    JSON body.
+
+                timeout (int):
+                    HTTP timeout.
 
             Returns:
                 None.
         """
+
+        # Set HTTP request variables
+        method = 'POST'
+        headers = BASE_HEADERS
+
+        # Create and send request
+        for need_id, shifts in self._shift_data.items():
+
+            # Construct URL and JSON payload
+            url = f'{BASE_URL}/needs/{need_id}/shifts'
+            json = shifts
+
+            # Send request
+            self._send_api_request(
+                method=method,
+                url=url,
+                headers=headers,
+                json=json,
+                timeout=timeout
+            )
 
         return None

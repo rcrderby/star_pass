@@ -14,6 +14,7 @@
                 "davidanson.vscode-markdownlint",
                 "github.vscode-github-actions",
                 "github.vscode-pull-request-github",
+                "mechatroner.rainbow-csv",
                 "ms-python.flake8",
                 "ms-python.pylint",
                 "ms-python.python",
