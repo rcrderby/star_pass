@@ -416,9 +416,8 @@ class AmplifyShifts():
         """
 
         # Set HTTP request variables
-        method = 'POST',
+        method = 'POST'
         headers = BASE_HEADERS
-        timeout = timeout
 
         # Create and send request
         for need_id, shifts in self._shift_data.items():
