@@ -2,9 +2,10 @@
 """ Star Pass Classes and Methods """
 
 # Imports - Python Standard Library
-from json import load, loads
+from json import load
 from os import getenv
 from os import path
+from typing import Dict
 
 # Imports - Third-Party
 import pandas as pd
@@ -76,8 +77,8 @@ class AmplifyShifts():
         self._shift_data: frame.DataFrame = None
         self._grouped_shift_data: DataFrameGroupBy = None
         self._grouped_series: series.Series = None
-        self._json_shift_data: str = None
-        self._json_shift_data_valid: bool = None
+        self._shift_data: Dict = None
+        self._shift_data_valid: bool = None
 
         # Call non-public functions to initialize workflow
         self._read_shift_csv_data()
@@ -287,8 +288,14 @@ class AmplifyShifts():
 
                 write_to_file (bool = False):
                     Write the resulting JSON data to a file in addition to
-                    storing the data in self._json_shift_data. Default value
+                    storing the data in self._shift_data. Default value
                     is False.
+
+            Modifies:
+                self._shift_data (Dict):
+                    Dictionary of shifts grouped by 'need_id' with all
+                    shifts for each 'need_id' contained in a 'shifts'
+                    dict key.
 
             Returns:
                 None.
@@ -303,11 +310,8 @@ class AmplifyShifts():
                 path_or_buf=OUTPUT_FILE
             )
 
-        # Store grouped series to JSON data for HTTP API requests
-        self._json_shift_data = self._grouped_series.to_json(
-            indent=2,
-            orient='index',
-        )
+        # Store grouped series data in a dictionary
+        self._shift_data = self._grouped_series.to_dict()
 
         return None
 
@@ -315,13 +319,13 @@ class AmplifyShifts():
         """ Validate shift JSON data against JSON Schema.
 
             Args:
-                self._json_shift_data (Dict):
-                    Dict of formatted JSON shift data.
+                self._shift_data (Dict):
+                    Dict of formatted shift data.
 
             Modifies:
-                self._json_shift_data_valid (bool):
-                    True if _json_shift_data complies with JSON Schema.
-                    False if _json_shift_data does not comply with JSON Schema.
+                self._shift_data_valid (bool):
+                    True if self._shift_data complies with JSON Schema.
+                    False if self._shift_data does not comply with JSON Schema.
 
             Returns:
                 None.
@@ -337,19 +341,19 @@ class AmplifyShifts():
 
         # Validate shift data against JSON Schema
         try:
-            # Attempt to validate JSON shift data against JSON Schema
+            # Attempt to validate shift data against JSON Schema
             validate(
-                instance=loads(self._json_shift_data),
+                instance=self._shift_data,
                 schema=json_schema_shifts
             )
 
-            # Set self._json_shift_data_valid to True
-            self._json_shift_data_valid = True
+            # Set self._shift_data_valid to True
+            self._shift_data_valid = True
 
         # Indicate invalidate JSON shift data
         except ValidationError:
-            # Set self._json_shift_data_valid to False
-            self._json_shift_data_valid = False
+            # Set self._shift_data_valid to False
+            self._shift_data_valid = False
 
         return None
 
