@@ -2,10 +2,10 @@
 """ Star Pass Classes and Methods """
 
 # Imports - Python Standard Library
-from json import load
+from json import dumps, load
 from os import getenv
 from os import path
-from typing import Dict
+from typing import Any, Dict
 
 # Imports - Third-Party
 import pandas as pd
@@ -24,14 +24,16 @@ load_dotenv(
 # Constants
 GC_TOKEN = getenv(key='GC_TOKEN')
 BASE_HEADERS = {
+    'Accept': 'application/json',
     'Authorization': f'Bearer {GC_TOKEN}',
-    'Accept': 'application/json'
+    'Content-Type': 'application/json'
 }
 BASE_URL = getenv(key='BASE_URL')
 DROP_COLUMNS = getenv('DROP_COLUMNS').split(
     sep=', '
 )
 GROUP_BY_COLUMN = getenv('GROUP_BY_COLUMN')
+HTTP_TIMEOUT = 3
 INPUT_FILE_EXTENSION = getenv('INPUT_FILE_EXTENSION')
 INPUT_FILE_PATH = path.join(
     getenv('BASE_FILE_PATH'),
@@ -101,32 +103,64 @@ class AmplifyShifts():
 
     def _send_api_request(
             self,
-            method: str
+            method: str,
+            url: str,
+            headers: Dict[str, str],
+            json: Any,
+            timeout: int
     ) -> None:
         """ Create base API request.
 
             Args:
-                None.
+                method (str):
+                    HTTP method (GET, POST, PUT, PATCH, DELETE).
+
+                url (str):
+                    Fully-qualified API endpoint URI.
+
+                headers (Dict[str, str]):
+                    HTTP headers.
+
+                json (Any):
+                    JSON body.
+
+                timeout (int):
+                    HTTP timeout.
 
             Returns:
                 None.
         """
 
-        # Construct URL
-        url = f'{BASE_URL}'
+        # Check for a dry run
+        if self._dry_run is False:
+            # Send API request
+            response = request(
+                method=method,
+                url=url,
+                headers=headers,
+                json=json,
+                timeout=timeout
+            )
 
-        # Send API request
-        response_data = request(
-            method=method,
-            url=url,
-            headers=BASE_HEADERS,
-            timeout=3
-        )
+            # Check for HTTP errors
+            if response.ok is not True:
+                response.raise_for_status()
 
-        # Create response data object
-        response = response_data.json()['data']
+            # Display HTTP response
+            print(
+                f'HTTP {response.status_code} {response.reason}'
+            )
 
-        return response
+        else:
+            # Display request
+            print(
+                '\n** HTTP API Dry Run **\n\n'
+                f"URL: '{url}'\n"
+                'Payload:\n'
+                f'{dumps(json, indent=2)}'
+            )
+
+        return None
 
     def _read_shift_csv_data(
         self,
@@ -366,14 +400,40 @@ class AmplifyShifts():
 
         return None
 
-    def create_new_shifts(self) -> None:
+    def create_new_shifts(
+            self,
+            json: Any = None,
+            timeout: int = HTTP_TIMEOUT,
+    ) -> None:
         """ Upload shift data to create new Amplify shifts.
 
             Args:
+                {{url_1}}/needs/{{need_id_officials_practice_so}}/shifts
                 None.
 
             Returns:
                 None.
         """
+
+        # Set HTTP request variables
+        method = 'POST',
+        headers = BASE_HEADERS
+        timeout = timeout
+
+        # Create and send request
+        for need_id, shifts in self._shift_data.items():
+
+            # Construct URL and JSON payload
+            url = f'{BASE_URL}/needs/{need_id}/shifts'
+            json = shifts
+
+            # Send request
+            self._send_api_request(
+                method=method,
+                url=url,
+                headers=headers,
+                json=json,
+                timeout=timeout
+            )
 
         return None
