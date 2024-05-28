@@ -409,8 +409,11 @@ class AmplifyShifts():
         """ Upload shift data to create new Amplify shifts.
 
             Args:
-                {{url_1}}/needs/{{need_id_officials_practice_so}}/shifts
-                None.
+                json (Any):
+                    JSON body.
+
+                timeout (int):
+                    HTTP timeout.
 
             Returns:
                 None.
